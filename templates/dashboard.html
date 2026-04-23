@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body { background:#121212; color:white; font-family:Arial; }
+h1 { text-align:center; }
+
+.stats { display:flex; justify-content:center; gap:20px; }
+.card { background:#1e1e1e; padding:20px; border-radius:10px; }
+
+table { width:90%; margin:auto; border-collapse:collapse; background:#1e1e1e; }
+th,td { padding:10px; border-bottom:1px solid #333; text-align:center; }
+
+.btn { display:block; width:200px; margin:20px auto; padding:10px; background:#00c6ff; text-align:center; color:white; }
+</style>
+
+</head>
+<body>
+
+<h1>📊 Dashboard</h1>
+
+<div class="stats">
+    <div class="card">Routeurs: {{ routers }}</div>
+    <div class="card">Switches: {{ switches }}</div>
+</div>
+
+
+<a href="/add" class="btn">➕ Add Device</a>
+<a href="/logout" class="btn">Logout</a>
+
+<table>
+<th>ID</th>
+<th>Name</th>
+<th>IP</th>
+<th>Port</th>
+<th>Type</th>
+<th>Status</th>
+<th>Location</th>
+<th>Vendor</th>
+<th>Description</th>
+<th>Action</th>
+
+{% for d in devices %}
+<tr>
+<td>{{ d[0] }}</td>
+<td>{{ d[1] }}</td>
+<td>{{ d[2] }}</td>
+<td>{{ d[3] }}</td>
+<td>{{ d[4] }}</td>
+<td>{{ d[5] }}</td>
+<td>{{ d[6] }}</td>
+<td>{{ d[7] }}</td>
+<td>{{ d[8] }}</td>
+<td><a href="/delete/{{ d[0] }}" style="color:red;">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+
+<script>
+new Chart(document.getElementById("chart"), {
+    type: 'doughnut',
+    data: {
+        labels: ["Routeurs", "Switches"],
+        datasets: [{
+            data: [{{ routers }}, {{ switches }}],
+            backgroundColor: ["#00c6ff", "#ff4b2b"]
+        }]
+    }
+});
+</script>
+
+</body>
+</html>
