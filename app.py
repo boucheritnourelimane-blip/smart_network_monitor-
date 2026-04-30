@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 import sqlite3
 import subprocess
+import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -27,10 +28,11 @@ def init_db():
 
 init_db()
 
-# ================= PING =================
+# ================= PING (Linux compatible) =================
 def ping(ip):
     try:
-        subprocess.check_output(["ping", "-n", "1", ip])
+        # -c يعمل في Linux (Render)
+        subprocess.check_output(["ping", "-c", "1", ip])
         return "Actif"
     except:
         return "Inactif"
@@ -60,8 +62,8 @@ def dashboard():
     c = conn.cursor()
     devices = c.execute("SELECT * FROM devices").fetchall()
 
-    routers = sum(1 for d in devices if (d[4] == "Routeur"))
-    switches = sum(1 for d in devices if (d[4] == "Switch"))
+    routers = sum(1 for d in devices if d[4] == "Routeur")
+    switches = sum(1 for d in devices if d[4] == "Switch")
 
     conn.close()
 
@@ -123,7 +125,13 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# ================= RUN =================
+# ================= STATUS (Monitoring) =================
+@app.route('/status')
+def status():
+    return {"status": "running"}
+
+# ================= RUN (Render compatible) =================
 if __name__ == "__main__":
     print("Server starting...")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
