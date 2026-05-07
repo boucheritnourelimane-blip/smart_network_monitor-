@@ -2,4 +2,8 @@ flask
 requests
 psutil
 pytest
+pytest-cov
+bandit
+safety
 flake8
+black

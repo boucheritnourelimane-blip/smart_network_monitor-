@@ -7,61 +7,136 @@ on:
     branches: ["main", "master"]
 
 jobs:
-  ci:
-    name: Intégration Continue (CI)
+  # JOB 1: Linting et qualité du code
+  lint:
+    name: 🔍 Linting & Code Quality
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Installer Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-
-      - name: Mettre à jour pip
-        run: python -m pip install --upgrade pip
-
-      - name: Installer les dépendances
-        run: pip install -r requirements.txt
-
-      - name: Analyse du code Flake8
+      
+      - name: Installer les linters
         run: |
-          pip install flake8
-          flake8 . --max-line-length=120 || true
+          pip install flake8 black
+      
+      - name: 🔴 Flake8 (PEP 8) - Sans || true !
+        run: flake8 . --max-line-length=120 --count --show-source --statistics
+      
+      - name: ⚫ Black (formatage)
+        run: black --check .
 
-      - name: Exécuter les tests
-        run: python -m pytest tests/test_app.py -v
-
-  docker:
-    name: Construction Docker
+  # JOB 2: Tests avec couverture
+  test:
+    name: 🧪 Unit Tests & Coverage
     runs-on: ubuntu-latest
-    needs: ci
-
+    needs: lint
+    
     steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      
+      - name: Installer dépendances
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      - name: 🧪 Exécuter les tests avec couverture
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml --cov-report=term --cov-fail-under=70
+      
+      - name: 📊 Upload rapport de couverture
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
 
+  # JOB 3: Scan de sécurité du code (SAST)
+  security-scan:
+    name: 🔒 Security Scan (SAST)
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      
+      - name: Installer Bandit
+        run: pip install bandit
+      
+      - name: 🔒 Scanner les vulnérabilités du code
+        run: |
+          bandit -r . -ll -f json -o bandit-report.json
+          bandit -r . -ll
+      
+      - name: 📊 Upload rapport de sécurité
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: bandit-report.json
+
+  # JOB 4: Scan des dépendances (SCA)
+  dependency-scan:
+    name: 📦 Dependency Scan (SCA)
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      
+      - name: Installer Safety
+        run: pip install safety
+      
+      - name: 📦 Scanner les vulnérabilités des dépendances
+        run: safety check -r requirements.txt --full-report
+
+  # JOB 5: Construction Docker
+  docker:
+    name: 🐳 Construction Docker
+    runs-on: ubuntu-latest
+    needs: [security-scan, dependency-scan]  # Attend les scans de sécurité
+    
+    steps:
+      - uses: actions/checkout@v4
+      
       - name: Configurer Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Construire l image Docker
+      
+      - name: Construire l'image Docker
         run: docker build -t smart-network-monitor .
-
+      
       - name: Tester le conteneur
         run: |
           docker run -d -p 5000:5000 smart-network-monitor
           sleep 5
+          curl --fail http://localhost:5000 || exit 1
           docker ps
 
+  # JOB 6: Déploiement
   deploy:
-    name: Deploiement CD
+    name: 🚀 Déploiement CD
     runs-on: ubuntu-latest
-    needs: [ci, docker]
-    if: github.ref == 'refs/heads/master'
-
+    needs: [docker]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    
     steps:
-      - name: Deployer sur Render
+      - name: Déployer sur Render
         run: |
           curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
