@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash
+import os
 import sqlite3
 import subprocess
-import os
+
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+
 
 app = Flask(__name__)
 app.secret_key = "secret123"
+
 
 # ================= DATABASE =================
 def init_db():
@@ -26,16 +29,18 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 init_db()
 
-# ================= PING (Linux compatible) =================
+
+# ================= PING =================
 def ping(ip):
     try:
-        # -c يعمل في Linux (Render)
         subprocess.check_output(["ping", "-c", "1", ip])
         return "Actif"
-    except:
+    except Exception:
         return "Inactif"
+
 
 # ================= LOGIN =================
 @app.route('/', methods=['GET', 'POST'])
@@ -48,9 +53,10 @@ def login():
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
         else:
-            flash("❌ Username ou mot de passe incorrect")
+            flash("Username ou mot de passe incorrect")
 
     return render_template("login.html")
+
 
 # ================= DASHBOARD =================
 @app.route('/dashboard')
@@ -67,10 +73,13 @@ def dashboard():
 
     conn.close()
 
-    return render_template("dashboard.html",
-                           devices=devices,
-                           routers=routers,
-                           switches=switches)
+    return render_template(
+        "dashboard.html",
+        devices=devices,
+        routers=routers,
+        switches=switches
+    )
+
 
 # ================= ADD =================
 @app.route('/add', methods=['GET', 'POST'])
@@ -91,18 +100,23 @@ def add():
 
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
-        c.execute("""
-        INSERT INTO devices (name, ip, port, type, status, location, vendor, description)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (name, ip, port, type_, status, location, vendor, description))
+        c.execute(
+            """
+            INSERT INTO devices
+            (name, ip, port, type, status, location, vendor, description)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (name, ip, port, type_, status, location, vendor, description)
+        )
 
         conn.commit()
         conn.close()
 
-        flash("✅ Device ajouté avec succès")
+        flash("Device ajoute avec succes")
         return redirect(url_for('dashboard'))
 
     return render_template("add_device.html")
+
 
 # ================= DELETE =================
 @app.route('/delete/<int:id>')
@@ -116,8 +130,9 @@ def delete(id):
     conn.commit()
     conn.close()
 
-    flash("🗑️ Device supprimé")
+    flash("Device supprime")
     return redirect(url_for('dashboard'))
+
 
 # ================= LOGOUT =================
 @app.route('/logout')
@@ -125,12 +140,14 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# ================= STATUS (Monitoring) =================
+
+# ================= STATUS =================
 @app.route('/status')
 def status():
     return {"status": "running"}
 
-# ================= RUN (Render compatible) =================
+
+# ================= RUN =================
 if __name__ == "__main__":
     print("Server starting...")
     port = int(os.environ.get("PORT", 5000))
