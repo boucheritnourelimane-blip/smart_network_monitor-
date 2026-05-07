@@ -16,26 +16,19 @@ database.db
 .pytest_cache/
 .coverage
 htmlcov/
-.tox/
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
 
 # OS
 .DS_Store
 Thumbs.db
-ehthumbs.db
-Desktop.ini
 
 # Logs
 *.log
-*.pid
 
 # Secrets
 .env
-.env.local
 *.pem
 *.key
