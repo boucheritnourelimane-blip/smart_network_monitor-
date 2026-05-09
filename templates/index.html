@@ -67,7 +67,6 @@
             50% { transform: translate(30px, -30px); }
         }
 
-        /* Content */
         .hero {
             position: relative;
             z-index: 10;
@@ -81,7 +80,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Logo */
         .logo-wrap {
             margin: 0 auto 32px;
             width: 100px;
@@ -101,17 +99,6 @@
             to { transform: rotate(360deg); }
         }
 
-        .logo-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 30px;
-            height: 30px;
-            animation: rotateSlow 20s linear infinite reverse;
-        }
-
-        /* Brand name */
         .brand {
             font-family: 'Space Mono', monospace;
             font-size: 48px;
@@ -133,53 +120,12 @@
             margin-bottom: 20px;
         }
 
-        .divider {
-            width: 60px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            margin: 24px auto;
-        }
-
         .description {
             font-size: 16px;
             color: var(--muted);
             max-width: 480px;
             line-height: 1.7;
             margin: 0 auto 40px;
-        }
-
-        /* Features */
-        .features {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 48px;
-            flex-wrap: wrap;
-        }
-
-        .feature {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--muted);
-            letter-spacing: 0.5px;
-        }
-
-        .feature-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 6px var(--green);
-        }
-
-        /* CTA */
-        .cta-wrap {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            align-items: center;
         }
 
         .btn-primary {
@@ -198,17 +144,6 @@
             cursor: pointer;
             text-decoration: none;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
         }
 
         .btn-primary:hover {
@@ -216,9 +151,6 @@
             box-shadow: 0 12px 35px rgba(0,212,255,0.5);
         }
 
-        .btn-primary:hover::after { opacity: 1; }
-
-        /* Bottom info */
         .bottom-info {
             position: fixed;
             bottom: 24px;
@@ -246,25 +178,6 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
-
-        /* Floating particles */
-        .particle {
-            position: fixed;
-            width: 3px;
-            height: 3px;
-            background: var(--accent);
-            border-radius: 50%;
-            opacity: 0;
-            animation: particleFloat linear infinite;
-            z-index: 0;
-        }
-
-        @keyframes particleFloat {
-            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
-        }
     </style>
 </head>
 <body>
@@ -273,38 +186,13 @@
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
 
-    <!-- Particles -->
-    <div class="particle" style="left:10%;animation-duration:12s;animation-delay:0s;"></div>
-    <div class="particle" style="left:25%;animation-duration:15s;animation-delay:3s;background:#00ff9d;"></div>
-    <div class="particle" style="left:50%;animation-duration:10s;animation-delay:6s;"></div>
-    <div class="particle" style="left:75%;animation-duration:14s;animation-delay:1s;background:#7c3aed;"></div>
-    <div class="particle" style="left:90%;animation-duration:11s;animation-delay:8s;"></div>
-
     <div class="hero">
-        <!-- Logo -->
         <div class="logo-wrap">
             <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="47" stroke="url(#ig1)" stroke-width="2"/>
                 <circle cx="50" cy="50" r="30" stroke="url(#ig1)" stroke-width="1.5" stroke-dasharray="5 4"/>
-                <line x1="50" y1="3" x2="50" y2="20" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="50" y1="80" x2="50" y2="97" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="3" y1="50" x2="20" y2="50" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="80" y1="50" x2="97" y2="50" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
-                <circle cx="50" cy="3" r="4" fill="#00ff9d"/>
-                <circle cx="50" cy="97" r="4" fill="#00ff9d"/>
-                <circle cx="3" cy="50" r="4" fill="#00ff9d"/>
-                <circle cx="97" cy="50" r="4" fill="#00ff9d"/>
                 <defs>
-                    <linearGradient id="ig1" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#00d4ff"/>
-                        <stop offset="1" stop-color="#00ff9d"/>
-                    </linearGradient>
-                </defs>
-            </svg>
-            <svg class="logo-center" viewBox="0 0 30 30" fill="none">
-                <circle cx="15" cy="15" r="10" fill="url(#cg1)"/>
-                <defs>
-                    <linearGradient id="cg1" x1="0" y1="0" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+                    <linearGradient id="ig1" x1="0" y1="0" x2="100" y2="100">
                         <stop stop-color="#00d4ff"/>
                         <stop offset="1" stop-color="#00ff9d"/>
                     </linearGradient>
@@ -314,22 +202,14 @@
 
         <div class="brand">NETPULSE</div>
         <div class="tagline">Smart Network Monitor</div>
-        <div class="divider"></div>
-
+        
         <p class="description">
             Plateforme intelligente de surveillance et de gestion des équipements réseau.
-            Déployée sur serveur Linux via un pipeline CI/CD automatisé.
         </p>
 
-        <div class="features">
-            <div class="feature"><div class="feature-dot"></div>Surveillance en temps réel</div>
-            <div class="feature"><div class="feature-dot"></div>CI/CD automatisé</div>
-            <div class="feature"><div class="feature-dot"></div>Déployé sur Linux</div>
-            <div class="feature"><div class="feature-dot"></div>Docker conteneurisé</div>
-        </div>
-
         <div class="cta-wrap">
-            <a href="/" class="btn-primary">
+            <!-- التصحيح هنا: الرابط يجب أن يوجه لـ /login لأن المستخدم لم يسجل دخوله بعد -->
+            <a href="/login" class="btn-primary">
                 ⬡ Accéder au Dashboard
             </a>
         </div>
