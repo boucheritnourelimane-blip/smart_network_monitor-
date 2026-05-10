@@ -32,17 +32,17 @@ def init_db():
     ''')
     conn.commit()
 
-    # ✅ SEED DATA — يتحمل تلقائياً عند كل restart
+    # ✅ Seed data — chargé automatiquement à chaque restart
     c.execute("SELECT COUNT(*) FROM devices")
     count = c.fetchone()[0]
 
     if count == 0:
         seed_devices = [
-            ("Router_Main",    "192.168.1.1",   "80",   "Routeur", "Actif",   "Data Center", "MikroTik", "Routeur principal pour internet"),
-            ("Router_Backup",  "192.168.1.2",   "8080", "Routeur", "Inactif", "Data Center", "Mikrotik", "Routeur de secours"),
-            ("Core_Switch",    "192.168.1.20",  "22",   "Switch",  "Actif",   "Data Center", "Cisco",    "Switch central du réseau"),
-            ("Switch_Floor1",  "192.168.1.10",  "22",   "Switch",  "Actif",   "1er étage",   "HP",       "Switch pour les postes utilisateurs"),
-            ("Switch_Lab",     "192.168.2.10",  "22",   "Switch",  "Inactif", "Salle TP",    "D-Link",   "Switch pour les étudiants"),
+            ("Router_Main",   "192.168.1.1",  "80",   "Routeur", "Actif",   "Data Center", "MikroTik", "Routeur principal pour internet"),
+            ("Router_Backup", "192.168.1.2",  "8080", "Routeur", "Inactif", "Data Center", "Mikrotik", "Routeur de secours"),
+            ("Core_Switch",   "192.168.1.20", "22",   "Switch",  "Actif",   "Data Center", "Cisco",    "Switch central du réseau"),
+            ("Switch_Floor1", "192.168.1.10", "22",   "Switch",  "Actif",   "1er étage",   "HP",       "Switch pour les postes utilisateurs"),
+            ("Switch_Lab",    "192.168.2.10", "22",   "Switch",  "Inactif", "Salle TP",    "D-Link",   "Switch pour les étudiants"),
         ]
         c.executemany(
             "INSERT INTO devices (name, ip, port, type, status, location, vendor, description) VALUES (?,?,?,?,?,?,?,?)",
@@ -64,10 +64,12 @@ def ping_device(ip):
 
 # ================= ROUTES =================
 
+# 1. Page d'accueil → redirige vers login
 @app.route('/')
 def index():
     return redirect(url_for('login'))
 
+# 2. Page de connexion
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -80,6 +82,7 @@ def login():
             flash("Identifiants incorrects", "danger")
     return render_template("login.html")
 
+# 3. Tableau de bord
 @app.route('/dashboard')
 def dashboard():
     if not session.get('logged_in'):
@@ -94,9 +97,13 @@ def dashboard():
     conn.close()
 
     return render_template("dashboard.html",
-        devices=devices, routers=routers,
-        switches=switches, actifs=actifs)
+        devices=devices,
+        routers=routers,
+        switches=switches,
+        actifs=actifs
+    )
 
+# 4. Ajouter un équipement
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if not session.get('logged_in'):
@@ -115,7 +122,7 @@ def add():
         conn = get_db()
         c = conn.cursor()
         c.execute(
-            "INSERT INTO devices (name,ip,port,type,status,location,vendor,description) VALUES (?,?,?,?,?,?,?,?)",
+            "INSERT INTO devices (name, ip, port, type, status, location, vendor, description) VALUES (?,?,?,?,?,?,?,?)",
             (name, ip, port, device_type, status, location, vendor, description)
         )
         conn.commit()
@@ -125,6 +132,7 @@ def add():
 
     return render_template("add_device.html")
 
+# 5. Supprimer un équipement
 @app.route('/delete/<int:id>')
 def delete(id):
     if not session.get('logged_in'):
@@ -138,11 +146,13 @@ def delete(id):
     flash("Équipement supprimé", "info")
     return redirect(url_for('dashboard'))
 
+# 6. Déconnexion
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# 7. Status — health check pour CI/CD et tests
 @app.route('/status')
 def status():
     return {"status": "ok"}, 200
